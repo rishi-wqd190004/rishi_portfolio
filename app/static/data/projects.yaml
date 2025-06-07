@@ -1,0 +1,13 @@
+- name: Pose Checker
+  slug: pose-checker
+  tag: A simple posture correction tool using OpenCV + MediaPipe.
+  tools: Python, OpenCV, MediaPipe
+  link: https://github.com/rishi-wqd190004/pose_correction_app
+  img: static/images/posture_check.webp
+
+- name: Sarcasm Detector
+  slug: sarcasm-detector
+  tag: Sarcasm detection from text using deep learning.
+  tools: Python, TensorFlow, NLP
+  link: https://github.com/rishi-wqd190004/wqd7006-ML-proj
+  img: static/images/sarcasm.jpg

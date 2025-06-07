@@ -1,0 +1,6 @@
+PyYAML
+Flask
+peewee
+python-dotenv
+PyMySQL
+flask-gravatar

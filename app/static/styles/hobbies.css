@@ -1,0 +1,77 @@
+/* Import Roboto font only in HTML, not here */
+
+/* Global font */
+body, p, h1, h2, h3, h4, h5, h6, button {
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+/* Body styling */
+body {
+  background-color: #f5f5f9;
+  background-size: cover;
+  width: auto; 
+  overflow-x: hidden;
+}
+
+/* Headings */
+h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: black;
+}
+
+/* Responsive image */
+#logo {
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+}
+
+#img_1 {
+  width: 300px;
+  height: 150px;
+  object-fit: cover;
+}
+
+/* Padding inside Card */
+.container {
+  padding: 2px 16px;
+  padding-top: 20px;
+}
+
+/* Paragraphs */
+p {
+  font-size: 18px;
+  text-align: center;
+  vertical-align: top;
+}
+
+/* Navbar */
+#navbar {
+  background: #343a40;
+}
+#navbar a {
+  color: #ff8c00;
+}
+#navbar li {
+  margin-right: 5px;
+}
+
+/* Icons */
+.fa {
+  padding: 20px;
+  font-size: 30px;
+  width: 50px;
+  text-align: center;
+  text-decoration: none;
+  color: #ff8c00;
+}
+.fa:hover {
+  opacity: 0.7;
+}
+
+/* Navbar nav margin */
+.navbar-nav {
+  margin-left: 1rem;
+}

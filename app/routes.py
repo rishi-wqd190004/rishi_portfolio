@@ -2,7 +2,7 @@ from flask import render_template, request, current_app, jsonify
 from app import app
 from app.models import TimelinePost
 from playhouse.shortcuts import model_to_dict
-import datetime
+from app.helper import load_country_coordinates, read_visited_csv
 
 @app.route('/')
 def index():
@@ -39,9 +39,25 @@ def projects():
 @app.route('/hobbies')
 def hobbies():
     userinfo = current_app.config['USERINFO']
+    all_places = load_country_coordinates()
+    visited_raw = read_visited_csv()
+    visited_places = []
+    for entry in visited_raw:
+        country = entry["country"]
+        if country in all_places:
+            place = all_places[country]
+            visited_places.append({
+                "country": country,
+                "latitude": place["latitude"],
+                "longitude": place["longitude"],
+                "alpha3": place["alpha3"],
+                "visited_date": entry["visited_date"],
+                "notes": entry["notes"]
+            })
     return render_template('hobbies.html',
                            title='Hobbies',
                            hobbies=userinfo['hobbies'],
+                           visited=visited_places,
                            email=userinfo['email'],
                            facebook=userinfo['facebook'],
                            instagram=userinfo['instagram'],

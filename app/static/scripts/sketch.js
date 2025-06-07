@@ -1,54 +1,66 @@
-let visited;
-let countries;
-const mappa = new Mappa('Leaflet');
-let visitmap;
-let canvas;
+const sketch = (p) => {
+  let visitedTable;
+  let countryData;
+  const mappa   = new Mappa('Leaflet');
+  let leafletMap;
+  let canvas;
+  let dots = [];
+  const mapOpts = {
+    lat   : 0,
+    lng   : 0,
+    zoom  : 1.5,
+    style : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+  };
 
-let data = [];
+  p.preload = function() {
+    visitedTable = p.loadTable('../static/data/visited.csv', 'header');
+    countryData  = p.loadJSON('../static/data/places.json');
+  };
 
-const options = {
-  lat: 0,
-  lng: 0,
-  zoom: 1.5,
-  style: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+  p.setup = function() {
+    const holder = document.getElementById('canvas-container');
+    if (!holder) return;
+    canvas = p.createCanvas(holder.offsetWidth, 400);
+    canvas.parent('canvas-container');
+    leafletMap = mappa.tileMap({ ...mapOpts, parent: holder });
+    leafletMap.overlay(canvas);
+
+    visitedTable.rows.forEach(row => {
+      const countryName = row.get('country').trim().toLowerCase();
+      const match = countryData.ref_country_codes.find(
+        c => c.country.toLowerCase() === countryName
+      );
+      if (match) {
+        dots.push({ lat: match.latitude, lng: match.longitude });
+      } else {
+        console.warn(`No coords for ${countryName}`);
+      }
+    });
+  };
+
+  p.windowResized = function() {
+    const holder = document.getElementById('canvas-container');
+    if (holder && canvas) {
+      p.resizeCanvas(holder.offsetWidth, 400);
+    }
+  };
+
+  p.draw = function() {
+    if (!canvas) return;
+    p.clear();
+    const zoomFactor = p.pow(2, leafletMap.zoom());
+    dots.forEach(pt => {
+      const pos = leafletMap.latLngToPixel(pt.lat, pt.lng);
+      p.fill(255, 0, 200, 120);
+      p.noStroke();
+      p.ellipse(pos.x, pos.y, 3 * zoomFactor);
+    });
+  };
 };
 
-function preload() {
-  visited = loadTable('../static/data/visited.csv', 'header');
-  countries = loadJSON('../static/data/places.json');
-}
-
-function setup() {
-  canvas = createCanvas(window.outerWidth, 400);
-  canvas.parent('canvas-container'); // matches your HTML!
-  visitmap = mappa.tileMap(options);
-  visitmap.overlay(canvas);
-
-  for (let row of visited.rows) {
-    let countryName = row.get('country');
-    // Find the country object in the array, case-insensitive match
-    let countryObj = countries.ref_country_codes.find(
-      c => c.country.toLowerCase() === countryName.toLowerCase()
-    );
-    if (!countryObj) {
-      console.warn(`No coordinates found for country: ${countryName}`);
-      continue;
-    }
-    let latitude = countryObj.latitude;
-    let longitude = countryObj.longitude;
-    data.push({latitude, longitude});
+// Only create the sketch if the container exists
+window.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('canvas-container')) {
+    new p5(sketch);
   }
-
-  console.log(data);
-}
-
-function draw() {
-  clear();
-  for (let country of data) {
-    const pix = visitmap.latLngToPixel(country.latitude, country.longitude);
-    fill(255, 0, 200, 100);
-    const zoom = visitmap.zoom();
-    const scl = pow(2, zoom);
-    ellipse(pix.x, pix.y, 3 * scl);
-  }
-}
+});

@@ -25,12 +25,35 @@
 
   <style>
     #canvas-container {
+      position: relative;
       width: 100%;
       height: 400px;
-      min-height: 400px;
       margin-top: 2rem;
       border-radius: 8px;
       overflow: hidden;
+    }
+
+    #canvas-container > .leaflet-container {
+      position: absolute !important;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 0;
+    }
+
+    #cities-plot {
+      max-width: 700px;
+      margin: 3rem auto;
+    }
+
+    #hobby-gallery img {
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #hobby-gallery img:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -39,8 +62,17 @@
   {% include 'navbar.html' %}
 
   <div class="container my-4">
+
+    <!-- Places Map (p5.js + Mappa overlay) -->
+    <h2 class="mt-5 mb-3">Places I've Visited</h2>
+    <div id="canvas-container"></div>
+
+    <!-- Plotly Cities Bar Chart -->
+    <h3 class="mt-5 mb-3 text-center">Cities I've Visited</h3>
+    <div id="cities-plot"></div>
+
     <!-- Hobbies Carousel -->
-    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+    <div id="carouselExampleIndicators" class="carousel slide mt-5" data-ride="carousel">
       <ol class="carousel-indicators">
         {% for h in hobbies %}
         <li data-target="#carouselExampleIndicators" data-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></li>
@@ -67,9 +99,28 @@
       </a>
     </div>
 
-    <!-- Places Map (p5.js + Mappa overlay) -->
-    <h2 class="mt-5 mb-3">Places I've Visited</h2>
-    <div id="canvas-container"></div>
+    <!-- Hobby & Achievement Photos Gallery -->
+    <h3 class="mt-5 mb-3 text-center">My Hobbies & Achievements</h3>
+    <div class="row" id="hobby-gallery">
+      <div class="col-md-4 mb-4">
+        <img src="./static/images/hobbies_gallery/basketball.jpeg" alt="Basketball" class="img-fluid rounded shadow">
+        <p class="text-center mt-2">Basketball Tournament 2024</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <img src="./static/images/hobbies_gallery/fishing.jpg" alt="Fishing" class="img-fluid rounded shadow">
+        <p class="text-center mt-2">Fishing in Norway</p>
+      </div>
+      <div class="col-md-4 mb-4">
+        <img src="./static/images/hobbies_gallery/paddleboarding.jpg" alt="Paddleboarding" class="img-fluid rounded shadow">
+        <p class="text-center mt-2">Paddleboarding Adventure</p>
+      </div>
+      <!-- Add more photos as needed -->
+    </div>
+
+    <h3 class="mt-5 mb-3 text-center">My Visited Places Map</h3>
+    <div id="visited-map" style="width:100%;max-width:900px;height:500px;margin:auto;"></div>
+
+
   </div>
 
   <footer class="footer-distributed">
@@ -86,7 +137,9 @@
         <a href="https://linkedin.com/in/{{ linkedin }}" class="fa fa-linkedin"></a>
         <a href="https://github.com/{{ github }}" class="fa fa-github"></a>
       </div>
-      <div><p id="copyright">{{ name }} &copy; 2025</p></div>
+      <div>
+        <p id="copyright">{{ name }} &copy; 2025</p>
+      </div>
     </div>
   </footer>
 
@@ -101,9 +154,48 @@
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
 
-  <!-- p5.js + Mappa + your sketch -->
+  <!-- p5.js + Mappa + your sketch
   <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mappa-mundi@0.0.4"></script>
-  <script src="./static/scripts/sketch.js"></script>
+  <script src="./static/scripts/sketch.js"></script> -->
+
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    // Data from Flask
+    var visited = {{ visited|tojson | safe}};
+    // Extract arrays for lat, lon, and country names
+    var lats = visited.map(v => v.latitude);
+    var lons = visited.map(v => v.longitude);
+    var texts = visited.map(v => v.country + "<br>" + v.notes);
+
+    var data = [{
+      type: "scattergeo",
+      mode: "markers",
+      lat: lats,
+      lon: lons,
+      text: texts,
+      marker: {
+        size: 10,
+        color: 'orange',
+        line: { width: 1, color: 'black' }
+      }
+    }];
+
+    var layout = {
+      title: "Visited Countries",
+      geo: {
+        projection: { type: "natural earth" },
+        showland: true,
+        landcolor: "rgb(217, 217, 217)"
+      },
+      margin: { t: 50, b: 0, l: 0, r: 0 }
+    };
+
+    Plotly.newPlot('visited-map', data, layout, {responsive: true});
+  </script>
+
+
 </body>
+
 </html>

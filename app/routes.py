@@ -1,5 +1,6 @@
 from flask import render_template, request, current_app, jsonify
 from app import app
+from collections import Counter
 from app.models import TimelinePost
 from playhouse.shortcuts import model_to_dict
 from app.helper import load_country_coordinates, read_visited_csv
@@ -42,6 +43,7 @@ def hobbies():
     all_places = load_country_coordinates()
     visited_raw = read_visited_csv()
     visited_places = []
+    country_list = []
     for entry in visited_raw:
         country = entry["country"]
         if country in all_places:
@@ -54,10 +56,17 @@ def hobbies():
                 "visited_date": entry["visited_date"],
                 "notes": entry["notes"]
             })
+            country_list.append(country)
+    # Count visits per country
+    country_counts = Counter(country_list)
+    country_names = list(country_counts.keys())
+    country_visits = list(country_counts.values())
     return render_template('hobbies.html',
                            title='Hobbies',
                            hobbies=userinfo['hobbies'],
                            visited=visited_places,
+                           country_names=country_names,
+                           country_visits=country_visits,
                            email=userinfo['email'],
                            facebook=userinfo['facebook'],
                            instagram=userinfo['instagram'],

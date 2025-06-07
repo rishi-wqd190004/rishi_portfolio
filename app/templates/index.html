@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Rishi's Portfolio{% endblock %}
+
+{% block content %}
+<h2>Welcome to my portfolio!</h2>
+<p>Projects, case studies, and more.</p>
+
+<ul>
+  <li><a href="{{ url_for('project', slug='pose-checker') }}">Pose Checker</a></li>
+  <li><a href="{{ url_for('project', slug='sarcasm-detection') }}">Sarcasm Detection</a></li>
+</ul>
+{% endblock %}
